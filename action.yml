@@ -1,0 +1,45 @@
+name: Push Slack Notificartion
+description: Call after a completed build to notify the appropriate slack channel (prod or nonprod)
+
+inputs:
+  app_name:
+    description: 'Application Name'
+    required: true
+  git_branch:
+    description: 'Git Branch'
+    required: true
+  git_sha:
+    description: 'Commit SHA'
+    required: true
+  deploy_url:
+    description: 'Application url'
+    required: true
+  slack_url:
+    description: 'Channel to post update'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set environment variables
+      shell: bash
+      run: |
+        echo "GIT_BRANCH=$(echo '${{ inputs.git_branch }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+        echo "REPO_NAME=$(echo '${{ inputs.app_name }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+        echo "SHORT_SHA=$(echo '${{ inputs.git_sha }}' | cut -c1-7)" >> $GITHUB_ENV
+    - name: build and send slack message
+      shell: bash
+      run: |
+        PAYLOAD="{
+          \"blocks\":[
+            {\"type\":\"divider\"},
+            {\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"*$REPO_NAME Build Deployment*\"}},
+            {\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"$REPO_NAME version \`$SHORT_SHA\` deployed to \`$GIT_BRANCH\` environment\"}},
+            {\"type\":\"actions\",\"elements\":[{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"$SHORT_SHA on Github\",\"emoji\":true},\"value\":\"click_me_123\",\"url\":\"https:\/\/github.com\/${{ inputs.app_name }}\/commit\/$SHORT_SHA\"},
+            {\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"Go to $GIT_BRANCH\",\"emoji\":true},\"value\":\"click_me_123\",\"url\":\"${{ inputs.deploy_url }}\"}]}
+         ]
+        }"
+
+        echo $PAYLOAD
+        curl -X POST -H 'Content-type: application/json' --data "$PAYLOAD" ${{ inputs.slack_url }}
+    
