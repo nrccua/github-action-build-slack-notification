@@ -4,7 +4,7 @@ Enables slack notifications for completed builds.
 
 <!-- start usage -->
 ```yaml
-- uses: nrccua/github-action-build-slack-notification
+- uses: nrccua/github-action-build-slack-notification@v1.0.0
   with:
     # App name
     # Required: true
