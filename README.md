@@ -48,7 +48,7 @@ jobs:
     - run: my_build.sh
     # add this action to the end of a successful build
     - name: call slack action
-      uses: nrccua/github-action-build-slack-notification@main
+      uses: nrccua/github-action-build-slack-notification@v1.0.0
       with:
         app_name: ${{github.repository}}
         git_branch: ${{ github.ref }}
