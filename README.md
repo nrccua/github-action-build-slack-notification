@@ -31,7 +31,7 @@ Enables slack notifications for completed builds.
 # Example
 
 ```yaml
-name: Deploy To S3
+name: Build my amazing app
 
 on:
   push:
